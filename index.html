@@ -1201,113 +1201,102 @@ async function saveToGallery() {
     toast('⚠️ รอให้ QR โหลดเสร็จก่อน'); return;
   }
 
-  const SCALE   = 3;
-  const W       = 600;
-  const qrSize  = 340;
-  const qrPad   = 28;
-  const hasAmt  = currentAmount !== null;
-  const hasRmk  = !!currentRemark;
+  const S      = 3;        // pixel scale — multiply every coordinate
+  const W      = 600;      // logical width
+  const qrSize = 340;
+  const qrPad  = 28;
+  const hasAmt = currentAmount !== null;
+  const hasRmk = !!currentRemark;
 
-  // ── Calculate total height ──
-  const headerH  = 110;
-  const subH     = 52;
-  const amountH  = hasAmt ? 86 : 0;
-  const nameH    = 52;
-  const qrCardH  = qrSize + qrPad * 2;
-  const noteH    = 48;
-  const footerH  = 38;
-
+  const headerH = 110;
+  const subH    = 52;
+  const amountH = hasAmt ? 90 : 0;
+  const nameH   = 64;
+  const qrCardH = qrSize + qrPad * 2;
+  const noteH   = 48;
+  const footerH = 38;
   const H = headerH + subH + amountH + nameH + 24 + qrCardH + 24 + noteH + footerH;
 
   const out = document.createElement('canvas');
-  out.width  = W * SCALE;
-  out.height = H * SCALE;
+  out.width  = W * S;
+  out.height = H * S;
   const ctx  = out.getContext('2d');
-  ctx.scale(SCALE, SCALE);
 
-  // ── White background ──
+  // Helper: draw centered text (always use out.width/2 as anchor)
+  const mid = out.width / 2;
+  function ct(text, y, size, weight, color) {
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle    = color;
+    ctx.font         = `${weight} ${size * S}px sans-serif`;
+    ctx.fillText(text, mid, y * S);
+  }
+
+  // White background
   ctx.fillStyle = '#f9fafb';
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillRect(0, 0, out.width, out.height);
 
-  // ── Red header ──
+  // Red header
   ctx.fillStyle = '#dc2626';
-  ctx.fillRect(0, 0, W, headerH);
+  ctx.fillRect(0, 0, out.width, headerH * S);
 
-  ctx.fillStyle = '#ffffff';
-  ctx.textAlign = 'center';
-  ctx.font = 'bold 30px sans-serif';
   const title = hasRmk ? '🧾 ' + currentRemark : '🔷 PromptPay QR';
-  ctx.fillText(title, W / 2, headerH / 2 + 11);
+  ct(title, headerH / 2 + 12, 30, 'bold', '#ffffff');
 
-  // ── Subtitle ──
-  ctx.fillStyle = '#6b7280';
-  ctx.font = '16px sans-serif';
-  ctx.fillText('กรุณาสแกน QR Code เพื่อชำระเงิน', W / 2, headerH + 34);
+  // Subtitle
+  ct('กรุณาสแกน QR Code เพื่อชำระเงิน', headerH + 34, 16, '', '#6b7280');
 
-  // ── Amount ──
+  // Amount
   let y = headerH + subH;
   if (hasAmt) {
-    ctx.fillStyle = '#dc2626';
-    ctx.font = 'bold 60px sans-serif';
-    ctx.fillText(
+    ct(
       currentAmount.toLocaleString('th-TH', { minimumFractionDigits: 2 }) + ' ฿',
-      W / 2, y + 64
+      y + 62, 58, 'bold', '#dc2626'
     );
     y += amountH;
   }
 
-  // ── "โอนเงินให้" + NAME — two centered lines ──
-  const lineY = y + 22;
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#6b7280';
-  ctx.font = '16px sans-serif';
-  ctx.fillText('โอนเงินให้', W / 2, lineY);
-
-  ctx.fillStyle = '#16a34a';
-  ctx.font = 'bold 24px sans-serif';
-  ctx.fillText(currentQRName, W / 2, lineY + 30);
+  // "โอนเงินให้" + name — two centered lines
+  ct('โอนเงินให้', y + 20, 16, '', '#6b7280');
+  ct(currentQRName, y + 48, 24, 'bold', '#16a34a');
   y += nameH;
 
-  // ── QR card with shadow ──
-  ctx.textAlign = 'center';
-  const cardW = qrSize + qrPad * 2;
-  const cardX = (W - cardW) / 2;
-  const cardY = y + 24;
+  // QR card shadow + white bg
+  const cardW = (qrSize + qrPad * 2) * S;
+  const cardX = (out.width - cardW) / 2;
+  const cardY = (y + 24) * S;
+  const cardH = qrCardH * S;
+  const r     = 18 * S;
 
   ctx.shadowColor   = 'rgba(0,0,0,0.10)';
-  ctx.shadowBlur    = 24;
-  ctx.shadowOffsetY = 6;
+  ctx.shadowBlur    = 24 * S;
+  ctx.shadowOffsetY = 6 * S;
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
-  ctx.roundRect
-    ? ctx.roundRect(cardX, cardY, cardW, qrCardH, 18)
-    : ctx.rect(cardX, cardY, cardW, qrCardH);
+  ctx.roundRect ? ctx.roundRect(cardX, cardY, cardW, cardH, r)
+                : ctx.rect(cardX, cardY, cardW, cardH);
   ctx.fill();
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
 
   ctx.strokeStyle = '#e5e7eb';
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 1 * S;
   ctx.beginPath();
-  ctx.roundRect
-    ? ctx.roundRect(cardX, cardY, cardW, qrCardH, 18)
-    : ctx.rect(cardX, cardY, cardW, qrCardH);
+  ctx.roundRect ? ctx.roundRect(cardX, cardY, cardW, cardH, r)
+                : ctx.rect(cardX, cardY, cardW, cardH);
   ctx.stroke();
 
-  ctx.drawImage(qrImg, cardX + qrPad, cardY + qrPad, qrSize, qrSize);
-  y = cardY + qrCardH;
+  ctx.drawImage(qrImg,
+    cardX + qrPad * S, cardY + qrPad * S,
+    qrSize * S, qrSize * S
+  );
+  y = y + 24 + qrCardH;
 
-  // ── Note ──
-  ctx.fillStyle = '#9ca3af';
-  ctx.font = '13px sans-serif';
-  ctx.fillText('* สแกนด้วยแอปธนาคาร ยอดเงินจะเด้งขึ้นมาทันที', W / 2, y + 32);
+  // Note + footer
+  ct('* สแกนด้วยแอปธนาคาร ยอดเงินจะเด้งขึ้นมาทันที', y + 30, 13, '', '#9ca3af');
+  ct('Generated by PromptPay QR', y + noteH + 16, 12, '', '#d1d5db');
 
-  // ── Footer ──
-  ctx.fillStyle = '#d1d5db';
-  ctx.font = '12px sans-serif';
-  ctx.fillText('Generated by PromptPay QR', W / 2, y + noteH + 18);
-
-  // ── Export ──
+  // Export
   out.toBlob(async (blob) => {
     const fname = `promptpay-${currentQRId}${currentRemark ? '-' + currentRemark.replace(/\s+/g, '_').slice(0, 12) : ''}.png`;
     const file  = new File([blob], fname, { type: 'image/png' });
