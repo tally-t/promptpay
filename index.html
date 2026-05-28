@@ -1256,27 +1256,16 @@ async function saveToGallery() {
     y += amountH;
   }
 
-  // ── "โอนเงินให้: NAME" — label gray, name green with underline ──
-  ctx.font = '18px sans-serif';
-  const label  = 'โอนเงินให้:  ';
-  const name   = currentQRName;
-  const labelW = ctx.measureText(label).width;
-  ctx.font = 'bold 18px sans-serif';
-  const nameW  = ctx.measureText(name).width;
-  const lineX  = (W - labelW - nameW) / 2;
-  const lineY  = y + 30;
-
-  ctx.textAlign = 'left';
-  ctx.fillStyle = '#374151';
-  ctx.font = '18px sans-serif';
-  ctx.fillText(label, lineX, lineY);
+  // ── "โอนเงินให้" + NAME — two centered lines ──
+  const lineY = y + 22;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#6b7280';
+  ctx.font = '16px sans-serif';
+  ctx.fillText('โอนเงินให้', W / 2, lineY);
 
   ctx.fillStyle = '#16a34a';
-  ctx.font = 'bold 18px sans-serif';
-  ctx.fillText(name, lineX + labelW, lineY);
-  // underline
-  ctx.fillStyle = '#16a34a';
-  ctx.fillRect(lineX + labelW, lineY + 3, nameW, 1.5);
+  ctx.font = 'bold 24px sans-serif';
+  ctx.fillText(currentQRName, W / 2, lineY + 30);
   y += nameH;
 
   // ── QR card with shadow ──
