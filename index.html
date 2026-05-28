@@ -1202,32 +1202,33 @@ async function saveToGallery() {
     return;
   }
 
-  // ── Build slip canvas ──────────────────
+  const SCALE  = 3;   // 3× pixel density → sharp on any screen
   const qrSize = 280;
-  const W      = qrSize + 64;
-  const pad    = 28;
+  const W      = qrSize + 80;
+  const pad    = 32;
+  const hasAmt = currentAmount !== null;
+  const hasRmk = !!currentRemark;
 
-  // Pre-measure text lines
-  const hasAmount = currentAmount !== null;
-  const hasRemark = !!currentRemark;
-
-  const headerH  = 52;
-  const nameH    = 22;
-  const idH      = 18;
-  const amountH  = hasAmount ? 32 : 0;
-  const remarkH  = hasRemark ? 22 : 0;
-  const gapH     = 14;
-  const footerH  = 28;
-
-  const H = pad + headerH + gapH + nameH + idH + (hasAmount ? 8 + amountH : 0)
-          + (hasRemark ? 8 + remarkH : 0) + gapH + qrSize + gapH + footerH + pad;
+  const H = pad
+          + 56                      // header band
+          + 28 + 20                 // name + id
+          + (hasAmt ? 40 : 0)       // amount
+          + (hasRmk ? 36 : 0)       // remark pill
+          + 20                      // gap
+          + qrSize
+          + 20                      // gap
+          + 28                      // footer
+          + pad;
 
   const out = document.createElement('canvas');
-  out.width  = W;
-  out.height = H;
+  out.width  = W * SCALE;
+  out.height = H * SCALE;
   const ctx  = out.getContext('2d');
+  ctx.scale(SCALE, SCALE);  // draw at 1× coords, output at 3×
 
-  // White bg
+  ctx.textAlign = 'center';
+
+  // White background
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, W, H);
 
@@ -1240,77 +1241,84 @@ async function saveToGallery() {
 
   // Header band
   ctx.fillStyle = '#f0f9ff';
-  ctx.fillRect(0, 5, W, headerH);
+  ctx.fillRect(0, 5, W, 56);
   ctx.fillStyle = '#0088cc';
-  ctx.font = 'bold 13px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('PromptPay QR', W / 2, 27);
+  ctx.font = 'bold 14px sans-serif';
+  ctx.fillText('PromptPay QR', W / 2, 30);
   ctx.fillStyle = '#94a3b8';
   ctx.font = '11px sans-serif';
-  ctx.fillText(new Date().toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' }), W / 2, 46);
+  ctx.fillText(
+    new Date().toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' }),
+    W / 2, 50
+  );
 
-  // Name + ID
-  let y = 5 + headerH + gapH + nameH;
+  // Name
+  let y = 5 + 56 + 26;
   ctx.fillStyle = '#0f172a';
-  ctx.font = 'bold 17px sans-serif';
+  ctx.font = 'bold 18px sans-serif';
   ctx.fillText(currentQRName, W / 2, y);
 
-  y += idH + 4;
+  // Phone / ID
+  y += 22;
   ctx.fillStyle = '#64748b';
   ctx.font = '13px sans-serif';
   ctx.fillText(formatDisplay(currentQRId, currentIdType), W / 2, y);
 
   // Amount
-  if (hasAmount) {
-    y += amountH;
+  if (hasAmt) {
+    y += 38;
     ctx.fillStyle = '#0077cc';
-    ctx.font = 'bold 24px sans-serif';
+    ctx.font = 'bold 26px sans-serif';
     ctx.fillText(
       currentAmount.toLocaleString('th-TH', { minimumFractionDigits: 2 }) + ' บาท',
       W / 2, y
     );
   }
 
-  // Remark pill
-  if (hasRemark) {
-    y += remarkH + 10;
-    const txt    = '💬 ' + currentRemark;
-    ctx.font = '13px sans-serif';
-    const tw = ctx.measureText(txt).width;
-    const rx = (W - tw - 20) / 2;
-    const ry = y - 16;
-    // pill background
+  // Remark pill — measure text without emoji for accurate width
+  if (hasRmk) {
+    y += 34;
+    ctx.font = '600 13px sans-serif';
+    const textOnly = currentRemark;
+    const tw       = ctx.measureText('💬  ' + textOnly).width;
+    const pillW    = tw + 32;
+    const pillH    = 26;
+    const pillX    = (W - pillW) / 2;  // always perfectly centered
+    const pillY    = y - 18;
+
     ctx.fillStyle = '#fef9c3';
     ctx.beginPath();
-    ctx.roundRect ? ctx.roundRect(rx, ry, tw + 20, 22, 11)
-                  : ctx.rect(rx, ry, tw + 20, 22);
+    if (ctx.roundRect) {
+      ctx.roundRect(pillX, pillY, pillW, pillH, pillH / 2);
+    } else {
+      ctx.rect(pillX, pillY, pillW, pillH);
+    }
     ctx.fill();
-    ctx.strokeStyle = '#fde68a';
+    ctx.strokeStyle = '#fde068';
     ctx.lineWidth = 1;
     ctx.stroke();
+
     ctx.fillStyle = '#92400e';
-    ctx.fillText(txt, W / 2, y);
+    ctx.fillText('💬  ' + textOnly, W / 2, y);
   }
 
   // QR image
-  y += gapH;
-  const qrX = (W - qrSize) / 2;
-  ctx.drawImage(qrImg, qrX, y, qrSize, qrSize);
+  y += 22;
+  ctx.drawImage(qrImg, (W - qrSize) / 2, y, qrSize, qrSize);
 
-  // Footer
-  y += qrSize + gapH;
-  ctx.fillStyle = '#cbd5e1';
+  // Footer divider + text
+  y += qrSize + 18;
+  ctx.fillStyle = '#e2e8f0';
   ctx.fillRect(pad, y, W - pad * 2, 1);
   ctx.fillStyle = '#94a3b8';
   ctx.font = '10px sans-serif';
   ctx.fillText('PromptPay® — สแกนด้วยแอปธนาคาร', W / 2, y + 16);
 
-  // ── Export ──────────────────────────────
+  // Export
   out.toBlob(async (blob) => {
-    const fname = `promptpay-${currentQRId}${currentRemark ? '-' + currentRemark.replace(/\s+/g,'_').slice(0,12) : ''}.png`;
+    const fname = `promptpay-${currentQRId}${currentRemark ? '-' + currentRemark.replace(/\s+/g, '_').slice(0, 12) : ''}.png`;
     const file  = new File([blob], fname, { type: 'image/png' });
 
-    // Mobile: native share → save to photos
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({ files: [file], title: `PromptPay — ${currentQRName}` });
@@ -1318,7 +1326,6 @@ async function saveToGallery() {
       } catch (e) { if (e.name === 'AbortError') return; }
     }
 
-    // Desktop: download
     const url = URL.createObjectURL(blob);
     const a   = document.createElement('a');
     a.href = url; a.download = fname;
