@@ -1208,15 +1208,18 @@ async function saveToGallery() {
   const hasAmt = currentAmount !== null;
   const hasRmk = !!currentRemark;
 
+  // Layout heights
   const headerH = 110;
   const subH    = 52;
-  const amountH = hasAmt ? 90 : 0;
-  const nameH   = 64;
+  const amountH = hasAmt ? 96 : 0;
+  const nameH   = 68;
+  const remarkH = hasRmk ? 74 : 0; // Increased space for the prominent remark
   const qrCardH = qrSize + qrPad * 2;
-  const remarkH = hasRmk ? 70 : 0; // Allocate space for remark
   const noteH   = 48;
-  const footerH = 38;
-  const H = headerH + subH + amountH + nameH + 24 + qrCardH + remarkH + 24 + noteH + footerH;
+  const footerH = 44;
+  
+  // Notice remarkH is now added *before* the QR card in the vertical flow
+  const H = headerH + subH + amountH + nameH + remarkH + 24 + qrCardH + 24 + noteH + footerH;
 
   const out = document.createElement('canvas');
   out.width  = W * S;
@@ -1225,60 +1228,102 @@ async function saveToGallery() {
 
   const mid = out.width / 2;
 
-  // ─── UPDATED HELPER: Manual Centering ───
-  // Bypasses browser bugs by manually measuring text width
+  // Safe manual centering function
   function ct(text, y, size, weight, color) {
     ctx.textBaseline = 'alphabetic';
     ctx.fillStyle    = color;
-    
-    // Construct valid font string without leading spaces
     ctx.font = (weight ? `${weight} ` : '') + `${size * S}px sans-serif`;
-    
-    ctx.textAlign = 'left'; // Force consistent baseline
+    ctx.textAlign = 'left'; 
     const txtW = ctx.measureText(text).width;
-    const startX = mid - (txtW / 2); // Shift left by half the text's width
-    
+    const startX = mid - (txtW / 2);
     ctx.fillText(text, startX, y * S);
   }
 
-  // White background
-  ctx.fillStyle = '#f9fafb';
+  // ─── THEME COLORS (Matched to your app UI) ───
+  const cBg      = '#07090f'; // Main dark background
+  const cHeader  = '#131920'; // Header card color
+  const cBorder  = '#1c2840'; // Subtle lines
+  const cText    = '#ddeeff'; // Main white text
+  const cText2   = '#8aaccc'; // Secondary text
+  const cText3   = '#3d5878'; // Muted text
+  const cAccent  = '#3ecfff'; // Cyan amount
+  const cGreen   = '#2ddf96'; // Green name
+  const cGold    = '#ffc947'; // Remark emphasis
+
+  // Main Background
+  ctx.fillStyle = cBg;
   ctx.fillRect(0, 0, out.width, out.height);
 
-  // Red header
-  ctx.fillStyle = '#dc2626';
+  // Top Header Banner
+  ctx.fillStyle = cHeader;
   ctx.fillRect(0, 0, out.width, headerH * S);
+  ctx.fillStyle = cBorder; 
+  ctx.fillRect(0, headerH * S - 2 * S, out.width, 2 * S); // subtle bottom border
 
-  ct('🔷 PromptPay QR', headerH / 2 + 12, 30, 'bold', '#ffffff');
+  // Title (No Emoji)
+  ct('PromptPay QR', headerH / 2 + 12, 32, 'bold', cText);
 
   // Subtitle
-  ct('กรุณาสแกน QR Code เพื่อชำระเงิน', headerH + 34, 16, '', '#6b7280');
+  ct('กรุณาสแกน QR Code เพื่อชำระเงิน', headerH + 34, 16, '', cText2);
 
   // Amount
   let y = headerH + subH;
   if (hasAmt) {
     ct(
       currentAmount.toLocaleString('th-TH', { minimumFractionDigits: 2 }) + ' ฿',
-      y + 62, 58, 'bold', '#dc2626'
+      y + 66, 64, 'bold', cAccent
     );
     y += amountH;
   }
 
   // "โอนเงินให้" + name
-  ct('โอนเงินให้', y + 20, 16, '', '#6b7280');
-  ct(currentQRName, y + 48, 24, 'bold', '#16a34a');
+  ct('โอนเงินให้', y + 20, 16, '', cText2);
+  ct(currentQRName, y + 50, 26, 'bold', cGreen);
   y += nameH;
 
-  // QR card shadow + white bg
+  // ─── EMPHASIZED REMARK ───
+  if (hasRmk) {
+    y += 12; // Gap above the pill
+    const rmkText = `📝 สำหรับ: ${currentRemark}`; 
+    ctx.font = `600 ${20 * S}px sans-serif`; // Larger font
+    const txtW = ctx.measureText(rmkText).width;
+    const pillW = txtW + 60 * S; // Wide padding
+    const pillH = 54 * S;        // Taller pill
+    const pillX = (out.width - pillW) / 2;
+    const pillY = y * S;
+
+    // Gold background with opacity
+    ctx.fillStyle = 'rgba(255, 201, 71, 0.12)';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(pillX, pillY, pillW, pillH, 16 * S) : ctx.rect(pillX, pillY, pillW, pillH);
+    ctx.fill();
+    
+    // Gold border
+    ctx.strokeStyle = 'rgba(255, 201, 71, 0.4)';
+    ctx.lineWidth = 2 * S;
+    ctx.stroke();
+
+    // Draw text inside pill safely
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = cGold;
+    ctx.fillText(rmkText, mid - (txtW / 2), pillY + (pillH / 2));
+    ctx.textBaseline = 'alphabetic'; // reset
+
+    y += (pillH / S); // Advance y by pill height
+  }
+
+  // QR card shadow + white bg (QR must remain white for easy scanning)
   const cardW = (qrSize + qrPad * 2) * S;
   const cardX = (out.width - cardW) / 2;
-  const cardY = (y + 24) * S;
+  const cardY = (y + 32) * S;
   const cardH = qrCardH * S;
-  const r     = 18 * S;
+  const r     = 24 * S; // Rounded corners matching your UI
 
-  ctx.shadowColor   = 'rgba(0,0,0,0.10)';
-  ctx.shadowBlur    = 24 * S;
-  ctx.shadowOffsetY = 6 * S;
+  // Cyan ambient glow behind the QR code
+  ctx.shadowColor   = 'rgba(62, 207, 255, 0.15)';
+  ctx.shadowBlur    = 40 * S;
+  ctx.shadowOffsetY = 8 * S;
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
   ctx.roundRect ? ctx.roundRect(cardX, cardY, cardW, cardH, r)
@@ -1287,50 +1332,15 @@ async function saveToGallery() {
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
 
-  ctx.strokeStyle = '#e5e7eb';
-  ctx.lineWidth = 1 * S;
-  ctx.beginPath();
-  ctx.roundRect ? ctx.roundRect(cardX, cardY, cardW, cardH, r)
-                : ctx.rect(cardX, cardY, cardW, cardH);
-  ctx.stroke();
-
   ctx.drawImage(qrImg,
     cardX + qrPad * S, cardY + qrPad * S,
     qrSize * S, qrSize * S
   );
-  y = y + 24 + qrCardH;
-
-  // ─── REMARK PILL ───
-  if (hasRmk) {
-    const rmkText = `💬 หมายเหตุ: ${currentRemark}`;
-    ctx.font = `500 ${16 * S}px sans-serif`;
-    const txtW = ctx.measureText(rmkText).width;
-    const pillW = txtW + 40 * S;
-    const pillH = 44 * S;
-    const pillX = (out.width - pillW) / 2;
-    const pillY = (y + 12) * S;
-
-    ctx.fillStyle = 'rgba(245, 158, 11, 0.1)';
-    ctx.beginPath();
-    ctx.roundRect ? ctx.roundRect(pillX, pillY, pillW, pillH, 12 * S) : ctx.rect(pillX, pillY, pillW, pillH);
-    ctx.fill();
-    
-    ctx.strokeStyle = 'rgba(245, 158, 11, 0.3)';
-    ctx.lineWidth = 1.5 * S;
-    ctx.stroke();
-
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#b45309';
-    ctx.textAlign = 'left';
-    ctx.fillText(rmkText, pillX + 20 * S, pillY + (pillH / 2));
-    ctx.textBaseline = 'alphabetic'; // reset
-
-    y += remarkH;
-  }
+  y = (cardY / S) + qrCardH;
 
   // Note + footer
-  ct('* สแกนด้วยแอปธนาคาร ยอดเงินจะเด้งขึ้นมาทันที', y + 30, 13, '', '#9ca3af');
-  ct('Generated by PromptPay QR', y + noteH + 16, 12, '', '#d1d5db');
+  ct('* สแกนด้วยแอปธนาคาร ยอดเงินจะเด้งขึ้นมาทันที', y + 36, 13, '', cText3);
+  ct('Generated by PromptPay QR', y + noteH + 18, 12, '', cBorder); // Very subtle footer
 
   // Export
   out.toBlob(async (blob) => {
