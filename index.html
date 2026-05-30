@@ -1213,23 +1213,32 @@ async function saveToGallery() {
   const amountH = hasAmt ? 90 : 0;
   const nameH   = 64;
   const qrCardH = qrSize + qrPad * 2;
+  const remarkH = hasRmk ? 70 : 0; // Allocate space for remark
   const noteH   = 48;
   const footerH = 38;
-  const H = headerH + subH + amountH + nameH + 24 + qrCardH + 24 + noteH + footerH;
+  const H = headerH + subH + amountH + nameH + 24 + qrCardH + remarkH + 24 + noteH + footerH;
 
   const out = document.createElement('canvas');
   out.width  = W * S;
   out.height = H * S;
   const ctx  = out.getContext('2d');
 
-  // Helper: draw centered text (always use out.width/2 as anchor)
   const mid = out.width / 2;
+
+  // ─── UPDATED HELPER: Manual Centering ───
+  // Bypasses browser bugs by manually measuring text width
   function ct(text, y, size, weight, color) {
-    ctx.textAlign    = 'center';
     ctx.textBaseline = 'alphabetic';
     ctx.fillStyle    = color;
-    ctx.font         = `${weight} ${size * S}px sans-serif`;
-    ctx.fillText(text, mid, y * S);
+    
+    // Construct valid font string without leading spaces
+    ctx.font = (weight ? `${weight} ` : '') + `${size * S}px sans-serif`;
+    
+    ctx.textAlign = 'left'; // Force consistent baseline
+    const txtW = ctx.measureText(text).width;
+    const startX = mid - (txtW / 2); // Shift left by half the text's width
+    
+    ctx.fillText(text, startX, y * S);
   }
 
   // White background
@@ -1240,8 +1249,7 @@ async function saveToGallery() {
   ctx.fillStyle = '#dc2626';
   ctx.fillRect(0, 0, out.width, headerH * S);
 
-  const title = hasRmk ? '🧾 ' + currentRemark : '🔷 PromptPay QR';
-  ct(title, headerH / 2 + 12, 30, 'bold', '#ffffff');
+  ct('🔷 PromptPay QR', headerH / 2 + 12, 30, 'bold', '#ffffff');
 
   // Subtitle
   ct('กรุณาสแกน QR Code เพื่อชำระเงิน', headerH + 34, 16, '', '#6b7280');
@@ -1256,7 +1264,7 @@ async function saveToGallery() {
     y += amountH;
   }
 
-  // "โอนเงินให้" + name — two centered lines
+  // "โอนเงินให้" + name
   ct('โอนเงินให้', y + 20, 16, '', '#6b7280');
   ct(currentQRName, y + 48, 24, 'bold', '#16a34a');
   y += nameH;
@@ -1291,6 +1299,34 @@ async function saveToGallery() {
     qrSize * S, qrSize * S
   );
   y = y + 24 + qrCardH;
+
+  // ─── REMARK PILL ───
+  if (hasRmk) {
+    const rmkText = `💬 หมายเหตุ: ${currentRemark}`;
+    ctx.font = `500 ${16 * S}px sans-serif`;
+    const txtW = ctx.measureText(rmkText).width;
+    const pillW = txtW + 40 * S;
+    const pillH = 44 * S;
+    const pillX = (out.width - pillW) / 2;
+    const pillY = (y + 12) * S;
+
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.1)';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(pillX, pillY, pillW, pillH, 12 * S) : ctx.rect(pillX, pillY, pillW, pillH);
+    ctx.fill();
+    
+    ctx.strokeStyle = 'rgba(245, 158, 11, 0.3)';
+    ctx.lineWidth = 1.5 * S;
+    ctx.stroke();
+
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#b45309';
+    ctx.textAlign = 'left';
+    ctx.fillText(rmkText, pillX + 20 * S, pillY + (pillH / 2));
+    ctx.textBaseline = 'alphabetic'; // reset
+
+    y += remarkH;
+  }
 
   // Note + footer
   ct('* สแกนด้วยแอปธนาคาร ยอดเงินจะเด้งขึ้นมาทันที', y + 30, 13, '', '#9ca3af');
