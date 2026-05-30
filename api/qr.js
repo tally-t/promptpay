@@ -5,6 +5,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing number' });
   }
 
+  // The .png MUST be at the very end, otherwise the QR data gets corrupted!
   const url = amount
     ? `https://promptpay.io/${number}/${amount}.png`
     : `https://promptpay.io/${number}.png`;
