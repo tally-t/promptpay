@@ -1416,7 +1416,7 @@ async function saveToGallery() {
   const calcH     = hasCalc
     ? (currentCalcData.mode === 'split'
         ? 44
-        : 20 + calcItems.length * 36 + 14 + 36 + 16) + 20
+        : 20 + calcItems.length * 36 + 14 + 24 + 18) + 20
     : 0;
 
   const H = headerH + subH + amountH + nameH + remarkH + (hasCalc ? calcH : 0) + 24 + qrCardH + 24 + noteH + footerH;
@@ -1535,44 +1535,51 @@ async function saveToGallery() {
       y += 44;
 
     } else {
-      // Item list
-      const rowH  = 36;                                   // px per item row
-      const listH = 20 + calcItems.length * rowH + 14 + 36 + 16; // top + rows + gap + summary + bottom
+      // Item list — explicit index-based positions, no iy drift
+      const fSize  = 20;
+      const rowH   = 36;
+      const tPad   = 20;
+      const divGap = 14;
+      const sumGap = 24;
+      const bPad   = 18;
+      const listH  = tPad + calcItems.length * rowH + divGap + sumGap + bPad;
 
-      ctx.fillStyle = 'rgba(62,207,255,0.04)';
+      ctx.fillStyle = 'rgba(62,207,255,0.05)';
       ctx.beginPath();
       ctx.roundRect ? ctx.roundRect(boxX, y * S, boxW, listH * S, 12 * S)
                     : ctx.rect(boxX, y * S, boxW, listH * S);
       ctx.fill();
-      ctx.strokeStyle = 'rgba(62,207,255,0.12)'; ctx.lineWidth = 1.5 * S;
+      ctx.strokeStyle = 'rgba(62,207,255,0.15)'; ctx.lineWidth = 1.5 * S;
       ctx.stroke();
 
-      let iy = y + 20;
-      calcItems.forEach(item => {
+      // Item rows — index-based, no accumulated error
+      calcItems.forEach((item, i) => {
+        const baseY = (y + tPad + i * rowH + fSize) * S;
         ctx.textBaseline = 'alphabetic';
-        ctx.fillStyle    = cText2;
-        ctx.font         = `${16 * S}px sans-serif`;
-        ctx.textAlign    = 'left';
-        ctx.fillText(item.name, boxX + 20 * S, iy * S);
-
-        ctx.fillStyle  = cText;
-        ctx.font       = `600 ${16 * S}px sans-serif`;
-        ctx.textAlign  = 'right';
-        ctx.fillText(fmt(item.price), out.width - boxX - 20 * S, iy * S);
-        iy += rowH;
+        ctx.font      = `${fSize * S}px sans-serif`;
+        ctx.fillStyle = cText2; ctx.textAlign = 'left';
+        ctx.fillText(item.name, boxX + 20 * S, baseY);
+        ctx.font      = `600 ${fSize * S}px sans-serif`;
+        ctx.fillStyle = cText; ctx.textAlign = 'right';
+        ctx.fillText(fmt(item.price), out.width - boxX - 20 * S, baseY);
       });
 
-      // Divider
-      ctx.strokeStyle = 'rgba(62,207,255,0.18)'; ctx.lineWidth = 1 * S;
+      // Divider — fixed distance below last item baseline
+      const divY = (y + tPad + calcItems.length * rowH + divGap / 2) * S;
+      ctx.strokeStyle = 'rgba(62,207,255,0.2)'; ctx.lineWidth = S;
       ctx.beginPath();
-      ctx.moveTo(boxX + 16 * S, (iy + 2) * S);
-      ctx.lineTo(out.width - boxX - 16 * S, (iy + 2) * S);
+      ctx.moveTo(boxX + 16 * S, divY);
+      ctx.lineTo(out.width - boxX - 16 * S, divY);
       ctx.stroke();
-      iy += 14;
 
-      // Summary line — inside the box
-      const sumLine = `รวม ${fmt(cd.total)}${cd.n > 1 ? ` ÷ ${cd.n} คน` : ''} = ${fmt(cd.per)} บาท`;
-      ct(sumLine, iy + 20, 14, '600', cAccent);
+      // Summary line — fixed distance below divider, guaranteed inside box
+      const sumBaseY = (y + tPad + calcItems.length * rowH + divGap + sumGap) * S;
+      const sumLine  = `รวม ${fmt(cd.total)}${cd.n > 1 ? ` ÷ ${cd.n} คน` : ''} = ${fmt(cd.per)} บาท`;
+      ctx.font = `700 ${15 * S}px sans-serif`;
+      ctx.fillStyle = cAccent; ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+      const sumW = ctx.measureText(sumLine).width;
+      ctx.fillText(sumLine, (out.width - sumW) / 2, sumBaseY);
+
       y += listH + 4;
     }
   }
