@@ -1414,7 +1414,9 @@ async function saveToGallery() {
   const hasCalc   = !!currentCalcData;
   const calcItems = hasCalc && currentCalcData.mode === 'items' ? currentCalcData.items : [];
   const calcH     = hasCalc
-    ? (currentCalcData.mode === 'split' ? 44 : 24 + calcItems.length * 28 + 12 + 28) + 20
+    ? (currentCalcData.mode === 'split'
+        ? 44
+        : 20 + calcItems.length * 36 + 14 + 36 + 16) + 20
     : 0;
 
   const H = headerH + subH + amountH + nameH + remarkH + (hasCalc ? calcH : 0) + 24 + qrCardH + 24 + noteH + footerH;
@@ -1534,8 +1536,9 @@ async function saveToGallery() {
 
     } else {
       // Item list
-      const rowH = 28;
-      const listH = calcItems.length * rowH + 12 + 30;
+      const rowH  = 36;                                   // px per item row
+      const listH = 20 + calcItems.length * rowH + 14 + 36 + 16; // top + rows + gap + summary + bottom
+
       ctx.fillStyle = 'rgba(62,207,255,0.04)';
       ctx.beginPath();
       ctx.roundRect ? ctx.roundRect(boxX, y * S, boxW, listH * S, 12 * S)
@@ -1544,35 +1547,32 @@ async function saveToGallery() {
       ctx.strokeStyle = 'rgba(62,207,255,0.12)'; ctx.lineWidth = 1.5 * S;
       ctx.stroke();
 
-      let iy = y + 18;
-      // Item rows
+      let iy = y + 20;
       calcItems.forEach(item => {
-        // Name left-aligned
         ctx.textBaseline = 'alphabetic';
         ctx.fillStyle    = cText2;
-        ctx.font         = `${13 * S}px sans-serif`;
+        ctx.font         = `${16 * S}px sans-serif`;
         ctx.textAlign    = 'left';
-        ctx.fillText(item.name, (boxX + 16 * S), iy * S);
-        // Price right-aligned
-        const priceStr = fmt(item.price);
+        ctx.fillText(item.name, boxX + 20 * S, iy * S);
+
         ctx.fillStyle  = cText;
-        ctx.font       = `600 ${13 * S}px sans-serif`;
+        ctx.font       = `600 ${16 * S}px sans-serif`;
         ctx.textAlign  = 'right';
-        ctx.fillText(priceStr, (out.width - boxX - 16 * S), iy * S);
+        ctx.fillText(fmt(item.price), out.width - boxX - 20 * S, iy * S);
         iy += rowH;
       });
 
       // Divider
-      ctx.strokeStyle = 'rgba(62,207,255,0.15)'; ctx.lineWidth = 1 * S;
+      ctx.strokeStyle = 'rgba(62,207,255,0.18)'; ctx.lineWidth = 1 * S;
       ctx.beginPath();
-      ctx.moveTo(boxX + 16 * S, iy * S);
-      ctx.lineTo(out.width - boxX - 16 * S, iy * S);
+      ctx.moveTo(boxX + 16 * S, (iy + 2) * S);
+      ctx.lineTo(out.width - boxX - 16 * S, (iy + 2) * S);
       ctx.stroke();
-      iy += 10;
+      iy += 14;
 
-      // Total ÷ N line
+      // Summary line — inside the box
       const sumLine = `รวม ${fmt(cd.total)}${cd.n > 1 ? ` ÷ ${cd.n} คน` : ''} = ${fmt(cd.per)} บาท`;
-      ct(sumLine, iy + 18, 13, '600', cAccent);
+      ct(sumLine, iy + 20, 14, '600', cAccent);
       y += listH + 4;
     }
   }
