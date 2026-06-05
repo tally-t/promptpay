@@ -530,6 +530,134 @@
     .qr-remark-tag .rt-label { font-size: 10px; color: var(--text3); letter-spacing: .5px; text-transform: uppercase; }
     .qr-remark-tag .rt-text { font-size: 13px; color: var(--gold); font-weight: 500; margin-top: 1px; }
 
+    /* ─── calculator card ───────────────── */
+    .calc-header {
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; user-select: none;
+    }
+    .calc-header-left { display: flex; align-items: center; gap: 8px; }
+    .calc-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .calc-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: .5px;
+      background: rgba(255,201,71,.15); border: 1px solid rgba(255,201,71,.3);
+      color: var(--gold); border-radius: 6px; padding: 2px 7px;
+    }
+    .calc-chevron {
+      font-size: 12px; color: var(--text3);
+      transition: transform .25s;
+    }
+    .calc-chevron.open { transform: rotate(180deg); }
+
+    .calc-body { margin-top: 16px; animation: rise .3s ease; }
+
+    .calc-tabs {
+      display: flex; gap: 6px; margin-bottom: 16px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 4px;
+    }
+    .calc-tab {
+      flex: 1; padding: 8px 6px; border-radius: 7px;
+      border: none; background: transparent;
+      color: var(--text3); font-family: inherit; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all .2s;
+    }
+    .calc-tab.active {
+      background: var(--card2); border: 1px solid var(--border2);
+      color: var(--accent);
+    }
+
+    /* split mode */
+    .split-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .split-label { font-size: 13px; color: var(--text2); }
+    .split-input {
+      width: 130px;
+      background: var(--surface) !important;
+      border: 1.5px solid var(--border) !important;
+      border-radius: 10px !important;
+      color: var(--text) !important;
+      font-size: 16px !important; font-weight: 600 !important;
+      text-align: right !important;
+      padding: 10px 12px 10px 12px !important;
+    }
+    .stepper {
+      display: flex; align-items: center; gap: 0;
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+    }
+    .stepper-btn {
+      width: 36px; height: 38px;
+      background: transparent; border: none;
+      color: var(--accent); font-size: 20px; font-weight: 300;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .stepper-btn:active { background: var(--accent-lo); }
+    .stepper-val {
+      min-width: 36px; text-align: center;
+      font-size: 16px; font-weight: 700; color: var(--text);
+      border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+      padding: 0 4px; line-height: 38px;
+    }
+
+    /* item list */
+    .item-row {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    }
+    .item-name-inp {
+      flex: 1;
+      width: auto !important;
+      min-width: 0;
+      background: var(--surface) !important;
+      border: 1.5px solid var(--border) !important;
+      border-radius: 10px !important; color: var(--text) !important;
+      font-size: 14px !important; padding: 10px 12px !important;
+    }
+    .item-price-inp {
+      width: 88px; background: var(--surface) !important;
+      border: 1.5px solid var(--border) !important;
+      border-radius: 10px !important; color: var(--accent) !important;
+      font-size: 14px !important; font-weight: 600 !important;
+      text-align: right !important; padding: 10px 10px !important;
+    }
+    .item-del {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--red); font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all .15s;
+    }
+    .item-del:hover { background: rgba(255,96,96,.1); border-color: var(--red); }
+    .btn-add-item {
+      width: 100%; background: transparent;
+      border: 1.5px dashed var(--border2);
+      border-radius: 10px; color: var(--text3);
+      font-family: inherit; font-size: 13px;
+      padding: 9px; cursor: pointer; margin-bottom: 12px;
+      transition: all .2s;
+    }
+    .btn-add-item:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* calc result row */
+    .calc-divider { height: 1px; background: var(--border); margin: 12px 0; }
+    .calc-result-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .calc-result-info { flex: 1; }
+    .calc-result-label { font-size: 10px; color: var(--text3); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
+    .calc-result-amount { font-size: 24px; font-weight: 700; color: var(--gold); letter-spacing: -1px; }
+    .calc-result-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+    .btn-apply {
+      background: linear-gradient(135deg, var(--gold), #e6a800);
+      border: none; border-radius: 12px;
+      color: #1a0f00; font-family: inherit; font-size: 13px; font-weight: 700;
+      padding: 12px 16px; cursor: pointer; white-space: nowrap;
+      transition: transform .15s;
+    }
+    .btn-apply:active { transform: scale(.97); }
+
     /* misc */
     .hidden { display: none !important; }
   </style>
@@ -650,6 +778,69 @@
           <span class="ico">✏️</span>
           <input type="text" id="others-name-input" placeholder="เช่น คุณสมชาย" maxlength="40" />
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Calculator card ── -->
+  <div class="card mt" id="calc-card">
+    <div class="calc-header" onclick="toggleCalc()">
+      <div class="calc-header-left">
+        <span>🧮</span>
+        <span class="calc-title">คำนวณยอด</span>
+        <span class="calc-badge">ใหม่</span>
+      </div>
+      <span class="calc-chevron" id="calc-chevron">▾</span>
+    </div>
+
+    <div class="calc-body hidden" id="calc-body">
+      <!-- Mode tabs -->
+      <div class="calc-tabs">
+        <button class="calc-tab active" id="tab-split" onclick="setCalcMode('split')">⚖️ แบ่งเท่ากัน</button>
+        <button class="calc-tab" id="tab-items" onclick="setCalcMode('items')">🧾 รายการ</button>
+      </div>
+
+      <!-- ── SPLIT MODE ── -->
+      <div id="calc-split-panel">
+        <div class="split-row">
+          <span class="split-label">ยอดรวม (บาท)</span>
+          <input type="number" class="split-input" id="calc-total"
+            placeholder="0.00" inputmode="decimal" oninput="updateCalcResult()" />
+        </div>
+        <div class="split-row">
+          <span class="split-label">จำนวนคน</span>
+          <div class="stepper">
+            <button class="stepper-btn" onclick="changeSplitN(-1)">−</button>
+            <div class="stepper-val" id="split-n-val">2</div>
+            <button class="stepper-btn" onclick="changeSplitN(1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ITEMS MODE ── -->
+      <div id="calc-items-panel" class="hidden">
+        <div id="item-list"></div>
+        <button class="btn-add-item" onclick="addCalcItem()">+ เพิ่มรายการ</button>
+        <div class="split-row">
+          <span class="split-label">แบ่งจ่าย</span>
+          <div class="stepper">
+            <button class="stepper-btn" onclick="changeItemsN(-1)">−</button>
+            <div class="stepper-val" id="items-n-val">1</div>
+            <button class="stepper-btn" onclick="changeItemsN(1)">+</button>
+          </div>
+          <span class="split-label">คน</span>
+        </div>
+      </div>
+
+      <!-- ── Result ── -->
+      <div class="calc-divider"></div>
+      <div class="calc-result-row">
+        <div class="calc-result-info">
+          <div class="calc-result-label">คนละ</div>
+          <div class="calc-result-amount" id="calc-result">0.00</div>
+          <div class="calc-result-sub" id="calc-result-sub">—</div>
+        </div>
+        <button class="btn-apply" onclick="applyCalcResult()">ใช้ยอดนี้ →</button>
       </div>
     </div>
   </div>
@@ -798,11 +989,12 @@ let mode       = 'me';
 let myType     = 'phone';
 let othersType = 'phone';
 let editType   = 'phone';
-let currentQRName = '';
-let currentQRId   = '';
-let currentIdType = 'phone';
-let currentAmount = null;
-let currentRemark = '';
+let currentQRName  = '';
+let currentQRId    = '';
+let currentIdType  = 'phone';
+let currentAmount  = null;
+let currentRemark  = '';
+let currentCalcData = null; // { mode, items, total, n, per }
 
 // ═══════════════════════════════════════
 //  INIT
@@ -1217,8 +1409,15 @@ async function saveToGallery() {
   const qrCardH = qrSize + qrPad * 2;
   const noteH   = 48;
   const footerH = 44;
-  
-  const H = headerH + subH + amountH + nameH + remarkH + 24 + qrCardH + 24 + noteH + footerH;
+
+  // Calc section height
+  const hasCalc   = !!currentCalcData;
+  const calcItems = hasCalc && currentCalcData.mode === 'items' ? currentCalcData.items : [];
+  const calcH     = hasCalc
+    ? (currentCalcData.mode === 'split' ? 44 : 24 + calcItems.length * 28 + 12 + 28) + 20
+    : 0;
+
+  const H = headerH + subH + amountH + nameH + remarkH + (hasCalc ? calcH : 0) + 24 + qrCardH + 24 + noteH + footerH;
 
   const out = document.createElement('canvas');
   out.width  = W * S;
@@ -1312,6 +1511,72 @@ async function saveToGallery() {
     y += (pillH / S); // Advance y by new pill height
   }
 
+  // ─── CALC BREAKDOWN ───
+  if (hasCalc) {
+    const cd  = currentCalcData;
+    const fmt = v => v.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const boxX = 48 * S;
+    const boxW = out.width - boxX * 2;
+    y += 16;
+
+    if (cd.mode === 'split') {
+      // Single summary line
+      const line = `รวม ${fmt(cd.total)} ÷ ${cd.n} คน = ${fmt(cd.per)} บาท`;
+      ctx.fillStyle = 'rgba(62,207,255,0.06)';
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(boxX, y * S, boxW, 36 * S, 10 * S)
+                    : ctx.rect(boxX, y * S, boxW, 36 * S);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(62,207,255,0.15)'; ctx.lineWidth = 1.5 * S;
+      ctx.stroke();
+      ct(line, y + 24, 14, '', cText2);
+      y += 44;
+
+    } else {
+      // Item list
+      const rowH = 28;
+      const listH = calcItems.length * rowH + 12 + 30;
+      ctx.fillStyle = 'rgba(62,207,255,0.04)';
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(boxX, y * S, boxW, listH * S, 12 * S)
+                    : ctx.rect(boxX, y * S, boxW, listH * S);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(62,207,255,0.12)'; ctx.lineWidth = 1.5 * S;
+      ctx.stroke();
+
+      let iy = y + 18;
+      // Item rows
+      calcItems.forEach(item => {
+        // Name left-aligned
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillStyle    = cText2;
+        ctx.font         = `${13 * S}px sans-serif`;
+        ctx.textAlign    = 'left';
+        ctx.fillText(item.name, (boxX + 16 * S), iy * S);
+        // Price right-aligned
+        const priceStr = fmt(item.price);
+        ctx.fillStyle  = cText;
+        ctx.font       = `600 ${13 * S}px sans-serif`;
+        ctx.textAlign  = 'right';
+        ctx.fillText(priceStr, (out.width - boxX - 16 * S), iy * S);
+        iy += rowH;
+      });
+
+      // Divider
+      ctx.strokeStyle = 'rgba(62,207,255,0.15)'; ctx.lineWidth = 1 * S;
+      ctx.beginPath();
+      ctx.moveTo(boxX + 16 * S, iy * S);
+      ctx.lineTo(out.width - boxX - 16 * S, iy * S);
+      ctx.stroke();
+      iy += 10;
+
+      // Total ÷ N line
+      const sumLine = `รวม ${fmt(cd.total)}${cd.n > 1 ? ` ÷ ${cd.n} คน` : ''} = ${fmt(cd.per)} บาท`;
+      ct(sumLine, iy + 18, 13, '600', cAccent);
+      y += listH + 4;
+    }
+  }
+
   // QR card shadow + white bg
   const cardW = (qrSize + qrPad * 2) * S;
   const cardX = (out.width - cardW) / 2;
@@ -1371,6 +1636,121 @@ function toast(msg) {
   el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+// ═══════════════════════════════════════
+//  CALCULATOR
+// ═══════════════════════════════════════
+let calcMode = 'split';
+let splitN   = 2;
+let itemsN   = 1;
+let calcOpen = false;
+
+function toggleCalc() {
+  calcOpen = !calcOpen;
+  document.getElementById('calc-body').classList.toggle('hidden', !calcOpen);
+  document.getElementById('calc-chevron').classList.toggle('open', calcOpen);
+}
+
+function setCalcMode(mode) {
+  calcMode = mode;
+  document.getElementById('tab-split').classList.toggle('active', mode === 'split');
+  document.getElementById('tab-items').classList.toggle('active', mode === 'items');
+  document.getElementById('calc-split-panel').classList.toggle('hidden', mode !== 'split');
+  document.getElementById('calc-items-panel').classList.toggle('hidden', mode !== 'items');
+  if (mode === 'items' && document.getElementById('item-list').children.length === 0) {
+    addCalcItem(); addCalcItem();
+  }
+  updateCalcResult();
+}
+
+function changeSplitN(d) {
+  splitN = Math.max(1, Math.min(50, splitN + d));
+  document.getElementById('split-n-val').textContent = splitN;
+  updateCalcResult();
+}
+
+function changeItemsN(d) {
+  itemsN = Math.max(1, Math.min(50, itemsN + d));
+  document.getElementById('items-n-val').textContent = itemsN;
+  updateCalcResult();
+}
+
+function addCalcItem() {
+  const baseStyle = `background:#0d1117;border:1.5px solid #1c2840;border-radius:10px;color:#ddeeff;font-size:14px;font-family:inherit;outline:none;-webkit-appearance:none;box-sizing:border-box;`;
+  const row = document.createElement('div');
+  row.className = 'item-row';
+  row.innerHTML = `
+    <input type="text" placeholder="รายการ"
+      style="${baseStyle}flex:1;width:auto;min-width:0;padding:10px 12px;" />
+    <input type="number" placeholder="0" inputmode="decimal" oninput="updateCalcResult()"
+      class="item-price-inp"
+      style="${baseStyle}width:88px;padding:10px 10px;text-align:right;color:#3ecfff;font-weight:600;" />
+    <button class="item-del" onclick="removeCalcItem(this)">✕</button>
+  `;
+  document.getElementById('item-list').appendChild(row);
+  updateCalcResult();
+}
+
+function removeCalcItem(btn) {
+  if (document.getElementById('item-list').children.length > 1) {
+    btn.closest('.item-row').remove();
+    updateCalcResult();
+  }
+}
+
+function getItemsTotal() {
+  return [...document.querySelectorAll('.item-price-inp')]
+    .reduce((sum, el) => sum + (parseFloat(el.value) || 0), 0);
+}
+
+function updateCalcResult() {
+  const total = calcMode === 'split'
+    ? (parseFloat(document.getElementById('calc-total').value) || 0)
+    : getItemsTotal();
+  const n = calcMode === 'split' ? splitN : itemsN;
+  const per = n > 0 ? total / n : 0;
+
+  const fmt  = v => v.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  document.getElementById('calc-result').textContent = fmt(per);
+  document.getElementById('calc-result-sub').textContent =
+    n > 1 ? `รวม ${fmt(total)} ÷ ${n} คน` : `รวม ${fmt(total)} บาท`;
+}
+
+function applyCalcResult() {
+  const total = calcMode === 'split'
+    ? (parseFloat(document.getElementById('calc-total').value) || 0)
+    : getItemsTotal();
+  const n   = calcMode === 'split' ? splitN : itemsN;
+  const per = Math.round((n > 0 ? total / n : 0) * 100) / 100;
+
+  if (per <= 0) { toast('⚠️ กรอกยอดก่อนนะ'); return; }
+
+  // Snapshot calc data for the slip
+  currentCalcData = { mode: calcMode, n, total, per };
+  if (calcMode === 'items') {
+    currentCalcData.items = [...document.querySelectorAll('#item-list .item-row')].map(row => ({
+      name:  row.querySelector('input[type=text]').value.trim() || 'รายการ',
+      price: parseFloat(row.querySelector('.item-price-inp').value) || 0
+    })).filter(i => i.price > 0);
+  }
+
+  // Enable toggle + fill amount
+  const toggle = document.getElementById('amount-toggle');
+  if (!toggle.checked) { toggle.checked = true; toggleAmount(); }
+  document.getElementById('amount-input').value = per.toFixed(2);
+  document.getElementById('amount-card').classList.add('on');
+  document.getElementById('amount-toggle-sub').textContent = 'ระบุจำนวนที่ต้องการรับ';
+  clearErr('amount-input', 'amount-err');
+
+  // Collapse calculator
+  calcOpen = false;
+  document.getElementById('calc-body').classList.add('hidden');
+  document.getElementById('calc-chevron').classList.remove('open');
+
+  toast(`✅ ใส่ยอด ${per.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาทแล้ว`);
+  setTimeout(() => document.getElementById('amount-card')
+    .scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
 }
 
 // Enter key
